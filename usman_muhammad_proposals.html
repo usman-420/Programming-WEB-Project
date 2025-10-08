@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Proposals — Usman Muhammad</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      margin: 0;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #2e2e2e; /* dark grey */
+      color: #ffffff;
+      padding: 25px 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    header p {
+      margin-top: 5px;
+      font-size: 15px;
+      color: #cbd5e1;
+    }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px 40px;
+    }
+    section {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      font-size: 22px;
+      margin-top: 0;
+      color: #0f172a;
+    }
+    h3 {
+      font-size: 15px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-top: 20px;
+      letter-spacing: 0.5px;
+    }
+    ul {
+      margin: 10px 0 15px 20px;
+    }
+    details summary {
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #2563eb;
+    }
+    details summary:hover {
+      color: #1d4ed8;
+    }
+    details ul, details p {
+      margin-left: 15px;
+      margin-top: 10px;
+    }
+    strong {
+      color: #0f172a;
+    }
+    .file {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+  <h1>Project Proposals</h1>
+  <p>Student: <strong style="color: #ffffff;">Usman Muhammad</strong></p>
+</header>
+
+  <main>
+    <!-- Proposal 1 -->
+    <section>
+      <h2>Proposal 1 – FitConnect: Gym Membership &amp; Workout Tracker</h2>
+      <p><strong>One-liner:</strong> A simple fitness platform where trainers can assign workouts and members can track their progress. The system automatically reminds members who skip sessions.</p>
+
+      <h3>Problem &amp; target audience</h3>
+      <p>Many gyms still rely on paper sheets or Excel files to follow up on members. This causes confusion, lost motivation, and poor progress tracking. FitConnect is meant for small to medium gyms where trainers want to manage workouts digitally and help members stay consistent.</p>
+
+      <h3>Core features (MVP)</h3>
+      <ul>
+        <li>Login system for trainers and members.</li>
+        <li>Trainers can create workout programs and assign them to members.</li>
+        <li>Members can tick off workouts from a daily checklist.</li>
+        <li>Progress view with basic graphs and statistics.</li>
+        <li>Automatic email reminder when a member hasn’t logged workouts for several days (via n8n).</li>
+        <li>Trainer receives an email report of inactive members.</li>
+      </ul>
+
+      <details>
+        <summary>Example: daily plan preview</summary>
+        <ul>
+          <li>Bench Press — 3 × 10 reps (Rest 90s)</li>
+          <li>Lat Pulldown — 3 × 12 reps</li>
+          <li>Goblet Squat — 3 × 12 reps</li>
+          <li>Plank — 3 × 45 seconds</li>
+        </ul>
+      </details>
+    </section>
+
+    <!-- Proposal 2 -->
+    <section>
+      <h2>Proposal 2 – Smart Restaurant Inventory &amp; Supplier Portal</h2>
+      <p><strong>One-liner:</strong> A web tool for restaurant staff to log what they use from inventory, and automatically alert managers and suppliers when stock is running low.</p>
+
+      <h3>Problem &amp; target audience</h3>
+      <p>Restaurants often lose track of stock levels, leading to missing ingredients or waste. This app helps <strong>restaurant managers</strong> and <strong>kitchen staff</strong> keep stock up-to-date and reduce manual work.</p>
+
+      <h3>Core features (MVP)</h3>
+      <ul>
+        <li>Login for staff and manager accounts.</li>
+        <li>Inventory dashboard with items and quantities.</li>
+        <li>“Take from stock” form where staff register used items.</li>
+        <li>Manager overview showing which items are low.</li>
+        <li>Automation: sends email to manager and supplier when quantity is below threshold (via n8n).</li>
+        <li>Log of all past stock movements for reference.</li>
+      </ul>
+
+      <details>
+        <summary>Example: stock update flow</summary>
+        <p>Cheese used: 3 kg → Remaining: 2 kg (below threshold) → System notifies manager and supplier to restock.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
