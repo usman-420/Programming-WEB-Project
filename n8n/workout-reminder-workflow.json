@@ -1,0 +1,260 @@
+{
+  "name": "Gym Workout Reminder & Alert System",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "name": "Schedule Daily Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "id": "schedule-trigger",
+      "notes": "Runs every 24 hours at 9:00 AM to check for missed workouts"
+    },
+    {
+      "parameters": {
+        "url": "=http://192.168.1.19:3000/api/auth/login",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"admin@gym.com\",\n  \"password\": \"password123\"\n}",
+        "options": {}
+      },
+      "name": "Login to Get JWT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300],
+      "id": "login-jwt",
+      "notes": "Authenticates with username/password to get fresh JWT token"
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.19:3000/api/sessions/missed",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Missed Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "id": "get-missed-sessions",
+      "notes": "Fetches all sessions that are scheduled but past their date"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$json.id }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Check If Sessions Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "id": "check-sessions",
+      "notes": "Only proceed if there are missed sessions"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Loop Through Sessions",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [1050, 200],
+      "id": "loop-sessions",
+      "notes": "Process each missed session one by one"
+    },
+    {
+      "parameters": {
+        "fromEmail": "=Gym Tracker <noreply@gym.com>",
+        "toEmail": "={{ $json.trainerEmail }}",
+        "subject": "=⚠️ Missed Workout Alert - {{ $json.memberName }}",
+        "emailFormat": "html",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <h2 style=\"color: #FF6B35;\">Missed Workout Notification</h2>\n  <p>Hi {{ $json.trainerName }},</p>\n  <p>Your member <strong>{{ $json.memberName }}</strong> has missed a scheduled workout:</p>\n  \n  <div style=\"background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;\">\n    <p><strong>📅 Scheduled Date:</strong> {{ $json.date.split('T')[0] }}</p>\n    <p><strong>🏋️ Workout Plan:</strong> {{ $json.workoutPlanName }}</p>\n    <p><strong>📧 Member Email:</strong> {{ $json.memberEmail }}</p>\n    <p><strong>📱 Member Phone:</strong> {{ $json.memberPhone }}</p>\n  </div>\n  \n  <p>Please follow up with this member to reschedule or provide support.</p>\n  \n  <div style=\"margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;\">\n    <p style=\"color: #666; font-size: 12px;\">This is an automated notification from the Gym Management System.</p>\n  </div>\n</div>",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "name": "Send Email to Trainer",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1250, 200],
+      "id": "send-email",
+      "notes": "Sends notification email to the trainer about the missed workout"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'http://192.168.1.19:3000/api/sessions/' + $('Loop Through Sessions').item.json.id }}",
+        "method": "PUT",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"missed\"\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Login to Get JWT').first().json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Update Session Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 200],
+      "id": "update-status",
+      "notes": "Updates the session status from 'scheduled' to 'missed'"
+    },
+    {
+      "parameters": {
+        "message": "=✅ Processed missed workout for {{ $json.memberName }} - Trainer {{ $json.trainerName }} notified"
+      },
+      "name": "Log Success",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1650, 200],
+      "id": "log-success",
+      "notes": "Logs successful processing"
+    },
+    {
+      "parameters": {
+        "message": "No missed sessions found. All workouts are on track! ✨"
+      },
+      "name": "No Sessions Found",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1050, 400],
+      "id": "no-sessions",
+      "notes": "Logged when no missed sessions are found"
+    }
+  ],
+  "connections": {
+    "Schedule Daily Check": {
+      "main": [
+        [
+          {
+            "node": "Login to Get JWT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login to Get JWT": {
+      "main": [
+        [
+          {
+            "node": "Get Missed Sessions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Missed Sessions": {
+      "main": [
+        [
+          {
+            "node": "Check If Sessions Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Sessions Found": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Sessions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Sessions Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Sessions": {
+      "main": [
+        [
+          {
+            "node": "Send Email to Trainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email to Trainer": {
+      "main": [
+        [
+          {
+            "node": "Update Session Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Session Status": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Success": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Sessions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "pinData": {},
+  "versionId": "1"
+}
